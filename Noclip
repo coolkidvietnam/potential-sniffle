@@ -1,0 +1,53 @@
+-- Tạo GUI đơn giản với nút bật/tắt Noclip
+local noclipEnabled = false
+local player = game.Players.LocalPlayer
+local character = player.Character or player.CharacterAdded:Wait()
+
+-- Tạo GUI
+local ScreenGui = Instance.new("ScreenGui", game.CoreGui)
+local NoclipButton = Instance.new("TextButton", ScreenGui)
+
+ScreenGui.Name = "NoclipGui"
+NoclipButton.Size = UDim2.new(0, 120, 0, 40)
+NoclipButton.Position = UDim2.new(0, 20, 0, 100)
+NoclipButton.Text = "Bật Noclip"
+NoclipButton.BackgroundColor3 = Color3.fromRGB(255, 100, 100)
+NoclipButton.TextColor3 = Color3.new(1, 1, 1)
+NoclipButton.Font = Enum.Font.SourceSansBold
+NoclipButton.TextSize = 20
+
+-- Hàm bật/tắt noclip
+local RunService = game:GetService("RunService")
+local noclipConnection
+
+local function toggleNoclip()
+    noclipEnabled = not noclipEnabled
+
+    if noclipEnabled then
+        NoclipButton.Text = "Tắt Noclip"
+        NoclipButton.BackgroundColor3 = Color3.fromRGB(100, 255, 100)
+
+        noclipConnection = RunService.Stepped:Connect(function()
+            for _, part in pairs(character:GetDescendants()) do
+                if part:IsA("BasePart") then
+                    part.CanCollide = false
+                end
+            end
+        end)
+    else
+        NoclipButton.Text = "Bật Noclip"
+        NoclipButton.BackgroundColor3 = Color3.fromRGB(255, 100, 100)
+
+        if noclipConnection then
+            noclipConnection:Disconnect()
+        end
+
+        for _, part in pairs(character:GetDescendants()) do
+            if part:IsA("BasePart") then
+                part.CanCollide = true
+            end
+        end
+    end
+end
+
+NoclipButton.MouseButton1Click:Connect(toggleNoclip)
